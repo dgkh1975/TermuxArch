@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## Copyright 2017-2020 by SDRausty. All rights reserved.  🌎 🌍 🌏 🌐 🗺
+## Copyright 2017-2021 by SDRausty. All rights reserved.  🌎 🌍 🌏 🌐 🗺
 ## Hosted sdrausty.github.io/TermuxArch courtesy https://pages.github.com
 ## https://sdrausty.github.io/TermuxArch/README has info about this project.
 ## https://sdrausty.github.io/TermuxArch/CONTRIBUTORS Thank you for your help.
@@ -28,15 +28,13 @@ MRCOUNTRIESx86_64="("Worldwide" "Australia" "Austria" "Bangladesh" "Belarus" "Be
 }
 
 _BLOOM_() { # Bloom = `setupTermuxArch manual verbose`
-[[ -d "$HOME"/TermuxArchBloom ]] && _RMBLOOMQ_
-mkdir -p "$HOME"/TermuxArchBloom
-cp *sh "$HOME"/TermuxArchBloom
-cp setupTermuxArch "$HOME"/TermuxArchBloom
-cd "$HOME"/TermuxArchBloom
+[[ -d "$HOME/TermuxArchBloom" ]] && _RMBLOOMQ_
+mkdir -p "$HOME/TermuxArchBloom"
+cp {LICENSE,archlinuxconfig.bash,espritfunctions.bash,getimagefunctions.bash,knownconfigurations.bash,maintenanceroutines.bash,necessaryfunctions.bash,setupTermuxArch,printoutstatements.bash} "$HOME/TermuxArchBloom"
+cd "$HOME/TermuxArchBloom"
 printf "\\e[1;34m%s\\e[1;32m%s\\e[0m 📲\\n\\n" "TermuxArch Bloom option via " "setupTermuxArch bloom"
 ls -agl
 printf "\\n\\e[1;34m%s\\e[1;32m%s\\e[1;34m%s\\e[1;32m%s\\e[1;34m%s\\e[1;32m%s\\e[1;34m.\\e[0m\\n" "Use " "cd ~/TermuxArchBloom" " to continue.  Edit any of these files;  Then use " "bash ${0##*/} [options]" " to run the files in " "~/TermuxArchBloom"
-printf '\033]2;  TermuxArch Bloom option via `setupTermuxArch bloom` 📲 \007'
 }
 
 _EDITFILES_() {
@@ -266,4 +264,4 @@ _PRINTWLD_
 am startservice --user 0 -a com.termux.service_wake_unlock com.termux/com.termux.app.TermuxService > /dev/null || _PSGI1ESTRING_ "am startservice _WAKEUNLOCK_ necessaryfunctions.bash ${0##/*} : Continuing..."
 _PRINTDONE_
 }
-## espritfunctions.bash EOF
+# espritfunctions.bash EOF

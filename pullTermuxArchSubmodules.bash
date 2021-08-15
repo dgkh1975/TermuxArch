@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## Copyright 2017-2020 (c) by TermuxArch, all rights reserved, see LICENSE 🌎 🌍 🌏 🌐 🗺
+## Copyright 2017-2021 (c) by TermuxArch, all rights reserved, see LICENSE 🌎 🌍 🌏 🌐 🗺
 ## https://termuxarch.github.io/TermuxArch courtesy host https://pages.github.com
 ## update git repository, then update modules
 ################################################################################
@@ -56,7 +56,7 @@ else
 printf "%s\\n" "No 'sha512.sum' file found in directory $(pwd)."
 fi
 cd $RDR
-#	sleep 0."$(shuf -i 24-72 -n 1)" # latency support
+sleep 0."$(shuf -i 24-72 -n 1)" # latency support
 }
 
 _PRT_ () {	# print message with no trialing newline
@@ -76,4 +76,4 @@ OUNA="/TermuxArch"
 _GSA_ docs docsTermuxArch "" || printf "\\n\\n%s\\n" "Cannot add or update module docs : Continuing..."
 _GSA_ gen genTermuxArch "" || printf "\\n\\n%s\\n" "Cannot add or update module gen : Continuing..."
 _GSA_ scripts "scripts.TermuxArch" "" || printf "\\n\\n%s\\n" "Cannot add or update module scripts : Continuing..."
-## pullTermuxArchSubmodules.bash EOF
+# pullTermuxArchSubmodules.bash EOF

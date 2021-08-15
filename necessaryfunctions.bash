@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## Copyright 2017-2020 by SDRausty. All rights reserved.  🌎 🌍 🌏 🌐 🗺
+## Copyright 2017-2021 by SDRausty. All rights reserved.  🌎 🌍 🌏 🌐 🗺
 ## Hosted sdrausty.github.io/TermuxArch courtesy https://pages.github.com
 ## https://sdrausty.github.io/TermuxArch/README has info about this project.
 ## https://sdrausty.github.io/TermuxArch/CONTRIBUTORS Thank you for your help.
@@ -45,12 +45,15 @@ _ADDgcm_
 _ADDgitconfig_
 _ADDgp_
 _ADDgpl_
-_ADDinputrc
+_ADDinfo_
+_ADDinputrc_
 _ADDkeys_
 _ADDmakefakeroottcp_
+_ADDmakeksh_
 _ADDmakeyay_
 _ADDorcaconf_
 _ADDpatchmakepkg_
+_ADDpacmandblock_
 _ADDpc_
 _ADDpci_
 _ADDprofile_
@@ -61,7 +64,8 @@ _ADDprofileusretc_
 fi
 _ADDt_
 _ADDthstartarch_
-_ADDtools_
+_ADDtimings_
+# _ADDtools_
 _ADDtour_
 _ADDtrim_
 _ADDv_
@@ -243,18 +247,18 @@ _DOKYLGEN_() {
 DOKYSKEY=""
 LOCGEN=":"
 }
-if [[ "${LCR:-}" -eq 3 ]] || [[ "${LCR:-}" -eq 4 ]] || [[ "${LCR:-}" -eq 5 ]] || [[ -z "${LCR:-}" ]]	# LCR equals 3 or 4 or 5 or is undefined
+if [[ "${LCR:-}" -eq 5 ]] || [[ -z "${LCR:-}" ]]	# LCR equals 5 or is undefined
 then
 _DOKEYS_
 LOCGEN="locale-gen || locale-gen"
-elif [[ "${LCR:-}" -eq 1 ]] || [[ "${LCR:-}" -eq 2 ]]	# LCR equals 1 or 2
+elif [[ "${LCR:-}" -eq 1 ]] || [[ "${LCR:-}" -eq 2 ]] || [[ "${LCR:-}" -eq 3 ]] || [[ "${LCR:-}" -eq 4 ]] 	# LCR equals 1 or 2 or 3 or 4
 then
 _DOKYLGEN_
 fi
 _CFLHDR_ "root/bin/$BINFNSTP"
 cat >> root/bin/"$BINFNSTP" <<- EOM
 _PMFSESTRING_() {
-printf "\\e[1;31m%s\\e[1;37m%s\\e[1;32m%s\\e[1;37m%s\\n\\n" "Signal generated in '\$1' : Cannot complete task : " "Continuing...   To correct the error run " "setupTermuxArch refresh" " to attempt to finish the autoconfiguration."
+printf "\\e[1;31m%s\\e[1;37m%s\\e[1;32m%s\\e[1;37m%s\\n\\n" "Signal generated in '\$1' : Cannot complete task : " "Continuing..."
 printf "\\e[1;34m%s\\e[0;34m%s\\e[1;34m%s\\e[0;34m%s\\e[1;34m%s\\n\\n" "  If you find better resolves for " "setupTermuxArch" " and " "\$0" ", please open an issue and accompanying pull request."
 }
 _PMGPSSTRING_() {
@@ -279,7 +283,7 @@ fi
 cat >> root/bin/"$BINFNSTP" <<- EOM
 $DOKYSKEY
 EOM
-if [[ "${LCR:-}" -eq 3 ]] || [[ "${LCR:-}" -eq 4 ]] || [[ "${LCR:-}" -eq 5 ]] || [[ -z "${LCR:-}" ]]	# LCR equals 3 or 4 or 5 or is undefined
+if [[ "${LCR:-}" -eq 5 ]] || [[ -z "${LCR:-}" ]]
 then
 if [[ "$CPUABI" = "$CPUABIX86_64" ]]
 then
@@ -292,7 +296,7 @@ printf "%s\\n" "pacman -Su glibc --noconfirm --color=always || pacman -Su glibc 
 fi
 fi
 cat >> root/bin/"$BINFNSTP" <<- EOM
-printf "\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n" "To generate locales in a preferred language use " "Settings > Language & Keyboard > Language " "in Android; Then run " "${0##*/} refresh" " for a full system refresh including locale generation; For a quick refresh you can use " "${0##*/} r" ".  For a refresh with user directories " "${0##*/} re" " can be used."
+printf "\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n" "To generate locales in a preferred language, you can use the native Android menu tap commands " "Settings > Language & Keyboard > Language " "in Android; Then run " "${0##*/} refresh" " for a full system refresh including locale generation; For a quick refresh you can use " "${0##*/} r" ".  For a refresh with user directories " "${0##*/} re" " can be used."
 $LOCGEN || _PMFSESTRING_ "LOCGEN $BINFNSTP ${0##/*}.  Please run '$LOCGEN' again in the installed system."
 EOM
 printf "%s\\n" "printf \"\\n\\e[1;32m==> \\e[1;37mRunning TermuxArch command \\e[1;32maddauser user\\e[1;37m...\\n\"" >> root/bin/"$BINFNSTP"
@@ -308,7 +312,6 @@ _MAKESETUPBIN_() {
 _CFLHDR_ root/bin/setupbin.bash
 cat >> root/bin/setupbin.bash <<- EOM
 set +Eeuo pipefail
-umask 0022
 EOM
 printf "%s\\n" "$PROOTSTMNT /root/bin/$BINFNSTP || printf \"%s\\n\" \"Signal generated; continuing...\"" >> root/bin/setupbin.bash
 cat >> root/bin/setupbin.bash <<- EOM
@@ -321,18 +324,17 @@ _MAKESTARTBIN_() {
 _CFLHDR_ "$STARTBIN"
 printf "%s\\n" "${FLHDRP[@]}" >> "$STARTBIN"
 cat >> "$STARTBIN" <<- EOM
-COMMANDG="\$(command -v getprop)" ||:
-if [[ "\$COMMANDG" = "" ]]
+_COMMANDGNE_() { printf "\\n\\e[1;48;5;138mScript %s\\e[0m\\n\\n" "\${0##*/} WARNING:  Please run '\${0##*/}' and 'bash \${0##*/}' from the BASH shell in vanilla Termux:  EXITING..." && exit 202 ; }
+COMMANDG="\$(command -v getprop)"
+if [ "\$COMMANDG" = "/usr/local/bin/getprop" ]
 then
-printf "\\n\\e[1;48;5;138mScript %s\\e[0m\\n\\n" "$STARTBIN \${0##*/} WARNING:  Run \${0##*/} and $INSTALLDIR/\${0##*/} from the BASH shell in Termux:  Exiting..."
-exit 202
+_COMMANDGNE_
 fi
 _PRINTUSAGE_() {
 printf "\\n\\e[1;32m%s\\e[0;32m%s\\n\\n" "$STARTBIN" "  start Arch Linux in $TXPRQUON with root login.  This account is reserved for system administration.  Please exercise caution when using the system administrator account."
 printf "\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n\\n" "$STARTBIN c[ommand] command" "  run Arch Linux command from Termux as root login.  Quoting multiple commands can assit when passing multiple arguments:  " "$STARTBIN c 'whoami ; cat -n /etc/pacman.d/mirrorlist'" ".  Please pass commands through the system administrator account with caution."
-printf "\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n\\n" "$STARTBIN el[ogin] | eu[ser] user" "  login as user.  Use alternate elogin or euser option to login as user.  This option is preferred for working with programs that have already been installed, and for working with the 'git' command.  Please use " "$STARTBIN c 'addauser user'" " first to create this user and the user's home directory."
-printf "\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n\\n\\e[0m" "$STARTBIN es[u] user command" "  login as user and execute command.  This option is preferred for working with programs that have already been installed, and for working with the 'git' command.  Quoting multiple commands can assit when passing multiple arguments:  " "$STARTBIN es user 'whoami ; cat -n /etc/pacman.d/mirrorlist'" ".  Please use " "$STARTBIN c 'addauser user'" " first to create a login and the login's home directory."
-printf "\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n\\n" "$STARTBIN l[ogin] | u[ser] user" "  login as user.  This option is preferred when installing software from a user account with the 'sudo' command, and when using commands such as 'makeaurhelpers', 'makepkg' and 'makeyay'.  Please use 'addauser user' first to create this user and the user's home directory."
+printf "\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n\\n" "$STARTBIN e[login|user] user" "  login as user.  Use alternate elogin and euser options to login as user.  This option is preferred for working with programs that have already been installed, and for working with the 'git' command.  Please use " "$STARTBIN c 'addauser user'" " first to create this user and the user's home directory."
+printf "\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n\\n" "$STARTBIN l[ogin]|u[ser] user" "  login as user.  This option is preferred when installing software from a user account with the 'sudo' command, and when using commands such as 'makeaurhelpers', 'makepkg' and 'makeyay'.  Please use 'addauser user' first to create this user and the user's home directory."
 printf "\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n\\n" "$STARTBIN r[aw]" "  construct the " "$STARTBIN " "proot statement from exec.../bin/.  For example " "$STARTBIN r su " "will exec su in Arch Linux.  See variable PROOTSTMNT for more options;  Please share your thoughts at https://github.com/SDRausty/TermuxArch/issues and https://github.com/SDRausty/TermuxArch/pulls."
 printf "\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\n\\n\\e[0m" "$STARTBIN s[u] user command" "  login as user and execute command.  This option is preferred when installing software from a user account with the 'sudo' command, and when using commands such as 'makeaurhelpers', 'makepkg' and 'makeyay'.  Quoting multiple commands can assit when passing multiple arguments:  " "$STARTBIN s user 'whoami ; cat -n /etc/pacman.d/mirrorlist'" ".  Please use " "$STARTBIN c 'addauser user'" " first to create a login and the login's home directory."
 printf '\\033]2;%s\\007' "TermuxArch $STARTBIN $@ 📲 : DONE 🏁"
@@ -340,12 +342,12 @@ printf '\\033]2;%s\\007' "TermuxArch $STARTBIN $@ 📲 : DONE 🏁"
 ## [] Default Arch Linux in Termux PRoot root login.
 if [[ -z "\${1:-}" ]]
 then
-printf '\\033]2;%s\\007' "TermuxArch $STARTBIN 📲 : DONE 🏁"
+printf '\\033]2;%s\\007' "TermuxArch $STARTBIN 📲"
 set +Eeuo pipefail
-umask 0022
 EOM
 printf "%s\\n" "$PROOTSTMNT /bin/bash -l ||: " >> "$STARTBIN"
 cat >> "$STARTBIN" <<- EOM
+printf '\\033]2;%s\\007' "TermuxArch $STARTBIN 📲 : DONE 🏁"
 set -Eeuo pipefail
 ## [? | help] Displays usage information.
 elif [[ "\${1//-}" = [?]* ]] || [[ "\${1//-}" = [Hh]* ]]
@@ -354,66 +356,60 @@ _PRINTUSAGE_
 ## [command ARGS] Execute a command in BASH as root.
 elif [[ "\${1//-}" = [Cc]* ]]
 then
-printf '\033]2; TermuxArch $STARTBIN command %s 📲 :DONE 🏁 \007' "\${@:2}"
+printf '\033]2; TermuxArch $STARTBIN command %s 📲\007' "\${@:2}"
 touch "$INSTALLDIR/root/.chushlogin"
 set +Eeuo pipefail
-umask 0022
 EOM
 printf "%s\\n" "$PROOTSTMNT /bin/bash -lc \"\${@:2}\" ||:" >> "$STARTBIN"
 cat >> "$STARTBIN" <<- EOM
+printf '\033]2; TermuxArch $STARTBIN command %s 📲 :DONE 🏁 \007' "\${@:2}"
 set -Eeuo pipefail
 rm -f "$INSTALLDIR/root/.chushlogin"
-## [el[ogin] user | eu[ser] user] Login as user.
-elif [[ "\${1//-}" = e[Ll]* ]] || [[ "\${1//-}" = e[Uu]* ]]
+## [e[login|user] user] Login as user.
+elif [[ "\${1//-}" = e* ]]
 then
-printf '\033]2; TermuxArch $STARTBIN elogin %s 📲 :DONE 🏁 \007' "\$2"
+printf '\033]2; TermuxArch $STARTBIN elogin %s 📲\007' "\$2"
 set +Eeuo pipefail
-umask 0022
+touch "$INSTALLDIR/var/lock/${INSTALLDIR##*/}/\$\$elock"
+if [ -f "$INSTALLDIR/var/lib/pacman/db.lck" ]
+then
+printf "%s" "File ~/${INSTALLDIR##*/}/var/lib/pacman/db.lck exists;  You can use the TermuxArch 'pacmandblock' command to alter the lock state.  Please use '$STARTBIN' and '$STARTBIN l[ogin] username' to install software in Arch Linux in Termux PRoot: "
+else
+printf "%s" "Creating file ~/${INSTALLDIR##*/}/var/lib/pacman/db.lck;  You can use the TermuxArch 'pacmandblock' command to alter the lock state.  Please use '$STARTBIN' and '$STARTBIN l[ogin] username' to install software in Arch Linux in Termux PRoot: "
+touch "$INSTALLDIR/var/lib/pacman/db.lck"
+printf "%s\\n" "DONE"
+fi
+printf "%s\\n%s\\n%s\\n%s\\n%s\\n%s\\n%s\\n%s\\n%s\\n%s\\n%s\\n%s\\n%s\\n" "if [ -f \"$INSTALLDIR/var/lock/${INSTALLDIR##*/}/\$\$elock\" ]" "then" "if [ -f \"$INSTALLDIR/var/lib/pacman/db.lck\" ]" "then" "printf \"%s\" \"Deleting file '~/${INSTALLDIR##*/}/var/lib/pacman/db.lck';  You can use the TermuxArch 'pacmandblock' command to alter this lock state.  Please use 'startarch' and 'startarch l[ogin] username' to install software in Arch Linux in Termux PRoot: \"" "rm -f \"$INSTALLDIR/var/lib/pacman/db.lck\"" "printf \"%s\\\\n\" \"DONE\"" "fi" "rm -f \"$INSTALLDIR/var/lock/${INSTALLDIR##*}\$\$elock\"" "fi" "[ ! -f "$INSTALLDIR/home/\$2/.hushlogout" ] && [ ! -f "$INSTALLDIR/home/\$2/.chushlogout" ] && . /etc/moto" "h # write session history to file HOME/.historyfile" "## .bash_logout EOF" > "$INSTALLDIR/home/\$2/.bash_logout"
 EOM
 printf "%s\\n" "$PROOTSTMNTEU /bin/su - \"\$2\" ||:" >> "$STARTBIN"
 cat >> "$STARTBIN" <<- EOM
-set -Eeuo pipefail
-## [esu user command] Login as user and execute command.
-elif [[ "\${1//-}" = [Ee][Ss]* ]]
-then
-printf '\\033]2;%s\\007' "TermuxArch $STARTBIN esu \$2 \${@:3} 📲 : DONE 🏁"
-if [[ "\$2" = root ]]
-then
-printf "%s\\n" "Please use this command \"$STARTBIN c '\${@:3}'\" for the Arch Linux in Termux PRoot \$2 user account;  Exiting..."
-exit
-fi
-touch "$INSTALLDIR/home/\$2/.chushlogin"
-set +Eeuo pipefail
-umask 0022
-EOM
-printf "%s\\n" "$PROOTSTMNTEU /bin/su - \"\$2\" -c \"\${@:3}\"" >> "$STARTBIN"
-cat >> "$STARTBIN" <<- EOM
+printf '\033]2; TermuxArch $STARTBIN elogin %s 📲 :DONE 🏁 \007' "\$2"
 set -Eeuo pipefail
 rm -f "$INSTALLDIR/home/\$2/.chushlogin"
-## [l[ogin] user | u[ser] user] Login as user.
+## [l[ogin]|u[ser] user] Login as user.
 elif [[ "\${1//-}" = [Ll]* ]] || [[ "\${1//-}" = [Uu]* ]]
 then
-printf '\033]2; TermuxArch $STARTBIN login %s 📲 :DONE 🏁 \007' "\$2"
+printf '\033]2; TermuxArch $STARTBIN login %s 📲\007' "\$2"
 set +Eeuo pipefail
-umask 0022
 EOM
 printf "%s\\n" "$PROOTSTMNTU /bin/su - \"\$2\" ||:" >> "$STARTBIN"
 cat >> "$STARTBIN" <<- EOM
+printf '\033]2; TermuxArch $STARTBIN login %s 📲 :DONE 🏁 \007' "\$2"
 set -Eeuo pipefail
 ## [raw ARGS] Construct the 'startarch' proot statement.
 elif [[ "\${1//-}" = [Rr]* ]]
 then
-printf '\033]2; TermuxArch $STARTBIN raw %s 📲 :DONE 🏁 \007' "\$@"
+printf '\033]2; TermuxArch $STARTBIN raw %s 📲\007' "\$@"
 set +Eeuo pipefail
-umask 0022
 EOM
 printf "%s\\n" "$PROOTSTMNT /bin/\"\${@:2}\"" >> "$STARTBIN"
 cat >> "$STARTBIN" <<- EOM
+printf '\033]2; TermuxArch $STARTBIN raw %s 📲 :DONE 🏁 \007' "\$@"
 set -Eeuo pipefail
 ## [su user command] Login as user and execute command.
 elif [[ "\${1//-}" = [Ss]* ]]
 then
-printf '\\033]2;%s\\007' "TermuxArch $STARTBIN su \$2 \${@:3} 📲 : DONE 🏁"
+printf '\\033]2;%s\\007' "TermuxArch $STARTBIN su \$2 \${@:3} 📲"
 if [[ "\$2" = root ]]
 then
 printf "%s\\n" "Please use this command \"$STARTBIN c '\${@:3}'\" for the Arch Linux in Termux PRoot \$2 user account;  Exiting..."
@@ -421,10 +417,10 @@ exit
 fi
 touch "$INSTALLDIR/home/\$2/.chushlogin"
 set +Eeuo pipefail
-umask 0022
 EOM
 printf "%s\\n" "$PROOTSTMNTU /bin/su - \"\$2\" -c \"\${@:3}\"" >> "$STARTBIN"
 cat >> "$STARTBIN" <<- EOM
+printf '\\033]2;%s\\007' "TermuxArch $STARTBIN su \$2 \${@:3} 📲 : DONE 🏁"
 set -Eeuo pipefail
 rm -f "$INSTALLDIR/home/\$2/.chushlogin"
 else
@@ -464,7 +460,7 @@ _PREPROOTDIR_() {
 local DRARRLST=("etc" "home" "root/bin" "usr/bin" "usr/local/bin" "var/backups/${INSTALLDIR##*/}/etc" "var/backups/${INSTALLDIR##*/}/root" "var/binds")
 for ISDIR in ${DRARRLST[@]}
 do
-[[ ! -d "$ISDIR" ]] && printf "\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[0m\\n" "Creating directory " "'/$ISDIR'" "." && mkdir -p "$ISDIR" || printf "\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[0m\\n" "Directory " "'/$ISDIR'" " exists; Continuing:"
+( [[ ! -d "$ISDIR" ]] && printf "\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[0m\\n" "Creating directory " "'/$ISDIR'" "." && mkdir -p "$ISDIR" ) || printf "\\e[0;32m%s\\e[1;32m%s\\e[0;32m%s\\e[0m\\n" "Directory " "'/$ISDIR'" " exists; Continuing:"
 done
 }
 
@@ -478,7 +474,10 @@ _MAKEFINISHSETUP_
 _MAKESETUPBIN_
 _MAKESTARTBIN_
 _FIXOWNER_
-[[ $ELCR == 0 ]] && exit ||: ##	Create ~/TermuxArchBloom directory and Arch Linux in Termux PRoot root directory skeleton.  Commands 'setupTermuxArch b[l[oom]]' can be used to access these features.  These options do NOT install the complete root file system.
+if [[ $ELCR == 0 ]]
+then
+exit	##	Create ~/TermuxArchBloom directory and Arch Linux in Termux PRoot root directory skeleton.
+fi
 }
 
 _PREPROOT_() {
@@ -607,4 +606,4 @@ _RUNFINISHSETUP_
 rm -f root/bin/$BINFNSTP
 rm -f root/bin/setupbin.bash
 }
-## necessaryfunctions.bash EOF
+# necessaryfunctions.bash EOF

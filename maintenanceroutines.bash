@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## Copyright 2017-2020 by SDRausty. All rights reserved.  🌎 🌍 🌏 🌐 🗺
+## Copyright 2017-2021 by SDRausty. All rights reserved.  🌎 🌍 🌏 🌐 🗺
 ## Hosted sdrausty.github.io/TermuxArch courtesy https://pages.github.com
 ## https://sdrausty.github.io/TermuxArch/README has info about this project.
 ## https://sdrausty.github.io/TermuxArch/CONTRIBUTORS Thank you for your help.
@@ -8,15 +8,15 @@
 _COPYIMAGE_() { # A systemimage.tar.gz file can be used: 'setupTermuxArch ./[path/]systemimage.tar.gz' and 'setupTermuxArch /absolutepath/systemimage.tar.gz'
 if [[ "$LCP" = "0" ]]
 then
-printf "%s\n" "Copying $GFILE.md5 to $INSTALLDIR..."
+printf "%s\\n" "Copying $GFILE.md5 to $INSTALLDIR..."
 cp "$GFILE".md5  "$INSTALLDIR"
-printf "%s\n" "Copying $GFILE to $INSTALLDIR..."
+printf "%s\\n" "Copying $GFILE to $INSTALLDIR..."
 cp "$GFILE" "$INSTALLDIR"
 elif [[ "$LCP" = "1" ]]
 then
-printf "%s\n" "Copying $GFILE.md5 to $INSTALLDIR..."
+printf "%s\\n" "Copying $GFILE.md5 to $INSTALLDIR..."
 cp "$WDIR$GFILE".md5  "$INSTALLDIR"
-printf "%s\n" "Copying $GFILE to $INSTALLDIR..."
+printf "%s\\n" "Copying $GFILE to $INSTALLDIR..."
 cp "$WDIR$GFILE" "$INSTALLDIR"
 fi
 GFILE="${GFILE##/*/}"
@@ -48,7 +48,12 @@ cd "$INSTALLDIR/root"
 }
 
 _DOTHRF_() { # do the root user files
+if [[ "${LCR:-}" -eq 3 ]] || [[ "${LCR:-}" -eq 4 ]] 	# LCR equals 3 or 4
+then	# do nothing
+:
+else
 [[ -f $1 ]] && (printf "\\e[1;32m%s\\e[0;32m%s\\e[0m\\n" "==>" " cp $1 /var/backups/${INSTALLDIR##*/}/$1.$SDATE.bkp" && cp "$1" "$INSTALLDIR/var/backups/${INSTALLDIR##*/}/$1.$SDATE.bkp") || printf "%s" "copy file '$1' if found : file not found : continuing : "
+fi
 }
 
 _FUNLCR2_() { # copy from root to home/USER
@@ -243,10 +248,10 @@ _SYSINFO_() {
 _NAMESTARTARCH_
 _SPACEINFO_
 printf "\\e[38;5;76m"
-printf "%s\\n" "Generating TermuxArch $VERSIONID system information; Please wait..."
+printf "%s\\n" "Generating TermuxArch $VERSIONID system information;  Please wait..."
 _TASPINNER_ clock & _SYSTEMINFO_ ; kill $! || _PRINTERRORMSG_ "_SYSINFO_ _SYSTEMINFO_ ${0##*/} maintenanceroutines.bash"
 cat "${WDIR}setupTermuxArchSysInfo$STIME".log
-printf "\\n\\e[1mThis information may be quite important when planning issue(s) at https://github.com/sdrausty/TermuxArch/issues with the hope of improving \'setupTermuxArch\';  Include input and output, along with screenshot(s) relavent to X, and similar.\\n\\n"
+printf "\\n\\e[1mPlease share relevant system information along with an issue and pull request at https://github.com/TermuxArch/TermuxArch/issues and also include the input and output with information which may be quite important when planning issue(s) at https://github.com/TermuxArch/TermuxArch/issues with the hope of improving this script, \'%s\'.\\n\\nIf you believe screenshots will help in a quicker resolution for an issue, also include them as well.  Please include the input as well as the output, along with screenshot(s) relrevant to Xserver on Android device, and similar.\\n\\n" "${0##*/}"
 exit
 }
 
@@ -258,7 +263,7 @@ uname -a >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 printf "\\n" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 for n in 0 1 2 3 4 5
 do
-printf "%s\n" "BASH_VERSINFO[$n] = ${BASH_VERSINFO[$n]}"  >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+printf "%s\\n" "BASH_VERSINFO[$n] = ${BASH_VERSINFO[$n]}"  >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 done
 printf "%s\\n" "cat /proc/cpuinfo results:" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 cat /proc/cpuinfo >> "${WDIR}setupTermuxArchSysInfo$STIME".log
@@ -268,17 +273,18 @@ printf "%s\\n" "Download directory information results:" >> "${WDIR}setupTermuxA
 [[ -d "$HOME"/downloads ]] && printf "%s\\n" "$HOME/downloads exists" || printf "%s\\n" "~/downloads not found" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 [[ -d "$HOME"/storage/downloads ]] && printf "%s\\n" "$HOME/storage/downloads exists" || printf "%s\\n" "$HOME/storage/downloads not found" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 printf "%s\\n" "Device information results:" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -e /dev/ashmem ]] && printf "%s\n" "/dev/ashmem exists" || printf "%s\n" "/dev/ashmem does not exist" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -r /dev/ashmem ]] && printf "%s\n" "/dev/ashmem is readable" || printf "%s\n" "/dev/ashmem is not readable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -w /dev/ashmem ]] && printf "%s\n" "/dev/ashmem is writable" || printf "%s\n" "/dev/ashmem is not writable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -e /dev/shm ]] && printf "%s\n" "/dev/shm exists" || printf "%s\n" "/dev/shm does not exist" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -r /dev/shm ]] && printf "%s\n" "/dev/shm is readable" || printf "%s\n" "/dev/shm is not readable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -e /proc/stat ]] && printf "%s\n" "/proc/stat exits" || printf "%s\n" "/proc/stat does not exit" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -r /proc/stat ]] && printf "%s\n" "/proc/stat is readable" || printf "%s\n" "/proc/stat is not readable">> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -e /sys/ashmem ]] && printf "%s\n" "/sys/ashmmem exists" || printf "%s\n" "/sys/ashmmem does not exist" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -r /sys/ashmmem ]] && printf "%s\n" "/sys/ashmmem is readable" || printf "%s\n" "/sys/ashmmem is not readable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -e /sys/shm ]] && printf "%s\n" "/sys/shm exists" || printf "%s\n" "/sys/shm does not exist" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-[[ -r /sys/shm ]] && printf "%s\n" "/sys/shm is readable" || printf "%s\n" "/sys/shm is not readable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -e /dev/ashmem ]] && printf "%s\\n" "/dev/ashmem exists" || printf "%s\\n" "/dev/ashmem does not exist" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -r /dev/ashmem ]] && printf "%s\\n" "/dev/ashmem is readable" || printf "%s\\n" "/dev/ashmem is not readable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -w /dev/ashmem ]] && printf "%s\\n" "/dev/ashmem is writable" || printf "%s\\n" "/dev/ashmem is not writable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+printf "\\n%s" "Ascertaining system information;  Please wait a moment  "
+[[ -e /dev/shm ]] && printf "%s\\n" "/dev/shm exists" || printf "%s\\n" "/dev/shm does not exist" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -r /dev/shm ]] && printf "%s\\n" "/dev/shm is readable" || printf "%s\\n" "/dev/shm is not readable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -e /proc/stat ]] && printf "%s\\n" "/proc/stat exits" || printf "%s\\n" "/proc/stat does not exit" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -r /proc/stat ]] && printf "%s\\n" "/proc/stat is readable" || printf "%s\\n" "/proc/stat is not readable">> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -e /sys/ashmem ]] && printf "%s\\n" "/sys/ashmmem exists" || printf "%s\\n" "/sys/ashmmem does not exist" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -r /sys/ashmmem ]] && printf "%s\\n" "/sys/ashmmem is readable" || printf "%s\\n" "/sys/ashmmem is not readable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -e /sys/shm ]] && printf "%s\\n" "/sys/shm exists" || printf "%s\\n" "/sys/shm does not exist" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
+[[ -r /sys/shm ]] && printf "%s\\n" "/sys/shm is readable" || printf "%s\\n" "/sys/shm is not readable" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 printf "%s\\n" "getprop results:" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 printf "%s %s\\n" "[getprop gsm.sim.operator.iso-country]:" "[$(getprop gsm.sim.operator.iso-country)]" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 printf "%s %s\\n" "[getprop net.bt.name]:" "[$(getprop net.bt.name)]" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
@@ -309,8 +315,8 @@ printf "\\n%s\\n\\n" "du -hs $INSTALLDIR results:" >> "${WDIR}setupTermuxArchSys
 du -hs "$INSTALLDIR" >> "${WDIR}setupTermuxArchSysInfo$STIME".log 2>/dev/null ||:
 printf "\\n%s\\n\\n" "ls -al $INSTALLDIR results:" >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 ls -al "$INSTALLDIR" >> "${WDIR}setupTermuxArchSysInfo$STIME".log 2>/dev/null ||:
+printf "\\n%s\\n" "This file is found at '${WDIR}setupTermuxArchSysInfo$STIME.log'." >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 printf "\\n%s\\e[0m\\n" "End 'setupTermuxArchSysInfo$STIME.log' $VERSIONID system information." >> "${WDIR}setupTermuxArchSysInfo$STIME".log
-printf "%s\\n" "Please share along with an issue and pull request at https://github.com/TermuxArch/TermuxArch/issues; include input and output.  This file is found in '${WDIR}setupTermuxArchSysInfo$STIME.log'.  If you think screenshots will help in a quicker resolution, include them as well." >> "${WDIR}setupTermuxArchSysInfo$STIME".log
 }
 
 _USERSPACE_() {
@@ -320,4 +326,4 @@ then
 USRSPACE="$(df "$INSTALLDIR" 2>/dev/null | awk 'FNR == 3 {print $3}')"
 fi
 }
-## maintenanceroutines.bash EOF
+# maintenanceroutines.bash EOF
